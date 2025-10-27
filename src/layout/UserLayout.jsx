@@ -7,10 +7,11 @@ import { useState, useEffect } from 'react';
 export default function UserLayout() {
   const [products, setProducts] = useState([]);
   const [filterProducts, setFilterProducts] = useState([]);
+  const api = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchProducts = async () => {
-      const res = await fetch("http://localhost:8080/products/all");
+      const res = await fetch(`${api}/products/all`);
       const data = await res.json();
       setProducts(data.data || []);
       setFilterProducts(data.data || []);

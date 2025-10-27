@@ -11,6 +11,7 @@ export default function AdminNavbar() {
   const [isOpen, setIsOpen] = useState(true);
   const [collapsed, setCollapsed] = useState(false);
   const [ordersCount, setOrdersCount] = useState(0);
+  const api = import.meta.env.VITE_API_URL;
 
   const { isSignedIn } = useAuth();
 
@@ -18,7 +19,7 @@ export default function AdminNavbar() {
     if (!isSignedIn) return;
 
     // Fetch all orders to count
-    fetch("http://localhost:8080/orders/all")
+    fetch(`${api}/orders/all`)
       .then(res => res.json())
       .then(data => {
         const orders = data.data || [];

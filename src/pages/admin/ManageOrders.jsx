@@ -7,10 +7,11 @@ export default function ManageOrders() {
   const [orders, setOrders] = useState([]);
   const [search, setSearch] = useState("");
   const navigate = useNavigate();
+  const api = import.meta.env.VITE_API_URL;
 
   const fetchOrders = async () => {
     try {
-      const res = await fetch("http://localhost:8080/orders/all");
+      const res = await fetch(`${api}/orders/all`);
       const data = await res.json();
       if (data && data.data) {
         setOrders(data.data);
@@ -39,7 +40,7 @@ export default function ManageOrders() {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this order?")) return;
     try {
-      await fetch(`http://localhost:8080/order/${id}`, {
+      await fetch(`${api}/order/${id}`, {
         method: "DELETE",
       });
       fetchOrders();
@@ -51,7 +52,7 @@ export default function ManageOrders() {
   // 🛠️ Update order status
   const handleStatusUpdate = async (id, status) => {
     try {
-      await fetch(`http://localhost:8080/order/status/update/${id}`, {
+      await fetch(`${api}/order/status/update/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status }),

@@ -1,11 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { FiBox, FiTag, FiShoppingCart, FiDollarSign, FiPlus } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@clerk/clerk-react";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const { isSignedIn } = useAuth();
 
   const [stats, setStats] = useState({
     totalProducts: 0,
@@ -15,39 +13,38 @@ export default function AdminDashboard() {
   });
   const [recentOrders, setRecentOrders] = useState([]);
   const [loading, setLoading] = useState(true);
+  const api = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
-    if (!isSignedIn) return;
-
     const fetchData = async () => {
       try {
-        // Fetch orders
-        const ordersRes = await fetch("http://localhost:8080/orders/all");
+        // Fetch all orders
+        const ordersRes = await fetch(`${api}/orders/all`);
         const ordersData = await ordersRes.json();
         const orders = ordersData.data || [];
 
         const totalOrders = orders.length;
         const totalRevenue = orders.reduce((sum, o) => sum + o.totalAmount, 0);
 
-        // Recent 5 orders
+        // Sort and pick the 5 most recent orders
         const sortedOrders = [...orders].sort(
           (a, b) => new Date(b.orderDate) - new Date(a.orderDate)
         );
         setRecentOrders(sortedOrders.slice(0, 5));
 
-        // Fetch products
-        const productsRes = await fetch("http://localhost:8080/products/all");
+        // Fetch all products
+        const productsRes = await fetch(`${api}/products/all`);
         const productsData = await productsRes.json();
         const products = productsData.data || [];
         const totalProducts = products.length;
 
-        // Fetch categories
-        const categoriesRes = await fetch("http://localhost:8080/categories/all");
+        // Fetch all categories
+        const categoriesRes = await fetch(`${api}/categories/all`);
         const categoriesData = await categoriesRes.json();
         const categories = categoriesData.data || [];
         const totalCategories = categories.length;
 
-        // Update stats
+        // Update dashboard stats
         setStats({
           totalProducts,
           totalCategories,
@@ -62,20 +59,12 @@ export default function AdminDashboard() {
     };
 
     fetchData();
-  }, [isSignedIn]);
-
-  if (!isSignedIn) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <p className="text-gray-700">Please login as Admin</p>
-      </div>
-    );
-  }
+  }, []);
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-screen">
-        <p className="text-gray-700">Loading dashboard...</p>
+        <p className="text-gray-700 text-lg">Loading dashboard...</p>
       </div>
     );
   }
@@ -87,10 +76,10 @@ export default function AdminDashboard() {
         <h1 className="text-2xl font-bold text-gray-800">
           <span className="text-blue-600">Admin</span> Dashboard
         </h1>
-        <p className="text-gray-500">Welcome back, here’s what’s happening today.</p>
+        <p className="text-gray-500">Overview of products, categories, and orders.</p>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Section */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <StatCard icon={<FiBox />} label="Products" value={stats.totalProducts} />
         <StatCard icon={<FiTag />} label="Categories" value={stats.totalCategories} />

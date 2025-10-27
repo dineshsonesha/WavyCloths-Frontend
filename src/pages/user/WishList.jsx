@@ -8,12 +8,13 @@ export default function Wishlist() {
 
   const [wishlist, setWishlist] = useState([]);
   const [loading, setLoading] = useState(true);
+  const api = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     if (!userId) return;
     const fetchWishlist = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/wishlist/${userId}`);
+        const res = await fetch(`${api}/wishlist/${userId}`);
         const data = await res.json();
         const inStockWishlist = (data.data).filter(
           (item) =>
@@ -33,7 +34,7 @@ export default function Wishlist() {
 
   const removeFromWishlist = async (productId) => {
     try {
-      await fetch(`http://localhost:8080/wishlist/${userId}/${productId}`, {
+      await fetch(`${api}/wishlist/${userId}/${productId}`, {
         method: "DELETE",
       });
       setWishlist((prev) => prev.filter((item) => item.product.id !== productId));
@@ -44,7 +45,7 @@ export default function Wishlist() {
 
   const addToCart = async (productId) => {
     try {
-      await fetch(`http://localhost:8080/cart/${userId}/${productId}?quantity=1`, {method: "POST",});
+      await fetch(`${api}/cart/${userId}/${productId}?quantity=1`, {method: "POST",});
     } catch (err) {
       console.error("Error adding to cart:", err);
     }

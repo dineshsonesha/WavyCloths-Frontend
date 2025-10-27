@@ -9,10 +9,11 @@ export default function ManageProducts() {
   const [categoryName, setCategoryName] = useState("");
   const navigate = useNavigate();
   const { id: categoryId } = useParams();
+  const api = import.meta.env.VITE_API_URL;
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:8080/products/all");
+      const response = await fetch(`${api}/products/all`);
       const responseObject = await response.json();
       let responseData = responseObject.data;
 
@@ -25,7 +26,7 @@ export default function ManageProducts() {
           setCategoryName(responseData[0].category?.name);
         } else {
           const catResponse = await fetch(
-            `http://localhost:8080/category/${categoryId}`
+            `${api}/category/${categoryId}`
           );
           if (catResponse.ok) {
             const catData = await catResponse.json();
@@ -51,7 +52,7 @@ export default function ManageProducts() {
   const handleDelete = async (id) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/product/delete/${id}`,
+        `${api}/product/delete/${id}`,
         { method: "DELETE" }
       );
       const responseData = await response.json();

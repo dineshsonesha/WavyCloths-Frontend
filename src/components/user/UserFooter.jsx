@@ -7,11 +7,12 @@ import Swal from "sweetalert2";
 export default function UserFooter() {
   const [email, setEmail] = useState("");
   const [categories, setCategories] = useState([]);
+  const api = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("http://localhost:8080/categories/all");
+        const res = await fetch(`${api}/categories/all`);
         const data = await res.json();
         setCategories(data.data || []);
       } catch (err) {

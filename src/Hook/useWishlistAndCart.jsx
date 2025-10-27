@@ -6,6 +6,7 @@ export default function useWishlistAndCart(userId) {
   const [wishlist, setWishlist] = useState([]);
   const [cart, setCart] = useState([]);
   const [loading, setLoading] = useState(false);
+  const api = import.meta.env.VITE_API_URL;
 
   const Toast = Swal.mixin({
     toast: true,
@@ -21,7 +22,7 @@ export default function useWishlistAndCart(userId) {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:8080/wishlist/${userId}`);
+      const res = await fetch(`${api}/wishlist/${userId}`);
       const data = await res.json();
       setWishlist(Array.isArray(data?.data) ? data.data.map((p) => p.id) : []);
     } catch (err) {
@@ -37,7 +38,7 @@ export default function useWishlistAndCart(userId) {
     }
     setLoading(true);
     try {
-      const res = await fetch(`http://localhost:8080/cart/${userId}`);
+      const res = await fetch(`${api}/cart/${userId}`);
       const data = await res.json();
       setCart(Array.isArray(data?.data) ? data.data : []);
     } catch (err) {
@@ -60,7 +61,7 @@ export default function useWishlistAndCart(userId) {
     }
     const wished = wishlist.includes(productId);
     try {
-      const res = await fetch(`http://localhost:8080/wishlist/${userId}/${productId}`, {
+      const res = await fetch(`${api}/wishlist/${userId}/${productId}`, {
         method: wished ? "DELETE" : "POST",
       });
       const data = await res.json();
@@ -84,7 +85,7 @@ export default function useWishlistAndCart(userId) {
   const removeWishlist = async (productId) => {
     if (!userId) return;
     try {
-      const res = await fetch(`http://localhost:8080/wishlist/${userId}/${productId}`, {
+      const res = await fetch(`${api}/wishlist/${userId}/${productId}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -107,7 +108,7 @@ export default function useWishlistAndCart(userId) {
     }
     try {
       const res = await fetch(
-        `http://localhost:8080/cart/${userId}/${productId}/${quantity}`,
+        `${api}/cart/${userId}/${productId}/${quantity}`,
         { method: "POST" }
       );
       const data = await res.json();
@@ -132,7 +133,7 @@ export default function useWishlistAndCart(userId) {
       return removeFromCart(productId);
     }
     try {
-      const res = await fetch(`http://localhost:8080/cart/${userId}/${productId}/${newQty}`, {
+      const res = await fetch(`${api}/cart/${userId}/${productId}/${newQty}`, {
         method: "PUT",
       });
       const data = await res.json();
@@ -157,7 +158,7 @@ export default function useWishlistAndCart(userId) {
   const removeFromCart = async (productId) => {
     if (!userId) return;
     try {
-      const res = await fetch(`http://localhost:8080/cart/${userId}/${productId}`, {
+      const res = await fetch(`${api}/cart/${userId}/${productId}`, {
         method: "DELETE",
       });
       const data = await res.json();

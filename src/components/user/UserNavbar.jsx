@@ -16,6 +16,7 @@ export default function UserNavbar({ onSearchProductsByTitle }) {
   const [searchText, setSearchText] = useState("");
 
   const clerkUserId = isSignedIn ? user.id : null;
+  const api = import.meta.env.VITE_API_URL;
 
   const menuItems = [
     { name: "Home", path: "/" },

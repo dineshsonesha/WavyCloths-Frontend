@@ -8,6 +8,7 @@ export default function UpdateProduct() {
   const { id } = useParams();
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
+  const api = import.meta.env.VITE_API_URL;
 
   const {
     register,
@@ -20,7 +21,7 @@ export default function UpdateProduct() {
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const response = await fetch("http://localhost:8080/categories/all");
+        const response = await fetch(`${api}/categories/all`);
         if (!response.ok) throw new Error("Failed to fetch categories");
         const data = await response.json();
         setCategories(data.data || []);
@@ -35,7 +36,7 @@ export default function UpdateProduct() {
   useEffect(() => {
     async function fetchProduct() {
       try {
-        const response = await fetch(`http://localhost:8080/products/${id}`);
+        const response = await fetch(`${api}/products/${id}`);
         if (!response.ok) throw new Error("Failed to fetch product");
         const data = await response.json();
         const product = data.data;
@@ -63,7 +64,7 @@ export default function UpdateProduct() {
   const collectFormData = async (formData) => {
     try {
       const response = await fetch(
-        `http://localhost:8080/product/${id}/category/${formData.categoryId}`,
+        `${api}/product/${id}/category/${formData.categoryId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

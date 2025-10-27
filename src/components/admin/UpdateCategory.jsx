@@ -8,11 +8,12 @@ export default function UpdateCategory() {
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [loading, setLoading] = useState(true);
+  const api = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchCategory = async () => {
       try {
-        const response = await fetch(`http://localhost:8080/category/${id}`);
+        const response = await fetch(`${api}/category/${id}`);
         const data = await response.json();
         if (response.ok && data.data) {
           setName(data.data.name || "");
@@ -38,7 +39,7 @@ export default function UpdateCategory() {
       return;
     }
     try {
-      const response = await fetch(`http://localhost:8080/category/update/${id}`, {
+      const response = await fetch(`${api}/category/update/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, imageUrl }),

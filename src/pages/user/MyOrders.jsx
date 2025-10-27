@@ -5,13 +5,14 @@ import { useClerk } from "@clerk/clerk-react";
 export default function MyOrders() {
   const { user } = useClerk();
   const [orders, setOrders] = useState([]);
+  const api = import.meta.env.VITE_API_URL;
 
   // Fetch orders for logged-in user
   useEffect(() => {
     const fetchOrders = async () => {
       if (!user?.id) return;
       try {
-        const response = await fetch(`http://localhost:8080/orders/user/${user.id}`);
+        const response = await fetch(`${api}/orders/user/${user.id}`);
         const data = await response.json();
         setOrders(data.data || []);
       } catch (error) {

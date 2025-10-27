@@ -10,24 +10,23 @@ export default function ProductDetail() {
   const { id } = useParams();
   const { user } = useUser();
   const userId = user?.id;
-
   const { wishlist, toggleWishlist, addToCart } = useWishlistAndCart(userId);
-
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const api = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/products/${id}`);
+        const res = await fetch(`${api}/products/${id}`);
         const data = await res.json();
         if (data.data) {
           setProduct(data.data);
           if (data.data.category?.id) {
-            const relRes = await fetch(`http://localhost:8080/products/category/${data.data.category.id}`);
-            const relData = await relRes.json();
+            const response = await fetch(`${api}/products/category/${data.data.category.id}`);
+            const responseData = await response.json();
             setRelatedProducts(
-              (relData.data).filter((p) => p.id !== data.data.id).filter((p) => p.status && p.status.toUpperCase() === "IN_STOCK")
+              (responseData.data).filter((p) => p.id !== data.data.id).filter((p) => p.status && p.status.toUpperCase() === "IN_STOCK")
             );
           }
         }
@@ -57,7 +56,7 @@ export default function ProductDetail() {
       // 2️⃣ Create order on backend
       const amountInPaise = Math.round(product.price * 100); // convert ₹ to paise
       const res = await fetch(
-        `http://localhost:8080/api/payment/create-order?amount=${amountInPaise}`,
+        `${api}/api/payment/create-order?amount=${amountInPaise}`,
         { method: "POST" }
       );
       const order = await res.json();
@@ -72,7 +71,7 @@ export default function ProductDetail() {
         order_id: order.id,
         handler: async function (response) {
           // 4️⃣ Verify payment on backend
-          const verifyRes = await fetch("http://localhost:8080/api/payment/verify", {
+          const verifyRes = await fetch(`${api}/api/payment/verify`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -86,7 +85,7 @@ export default function ProductDetail() {
           if (verifyRes.ok) {
             // 5️⃣ Place order in backend for this product
             const placeOrderRes = await fetch(
-              `http://localhost:8080/api/orders/place?userId=${user?.id}&productId=${product.id}`,
+              `${api}/api/orders/place?userId=${user?.id}&productId=${product.id}`,
               { method: "POST" }
             );
 

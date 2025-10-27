@@ -6,6 +6,7 @@ export default function AddCategory() {
   const [name, setName] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const navigate = useNavigate();
+  const api = import.meta.env.VITE_API_URL;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -14,7 +15,7 @@ export default function AddCategory() {
       return;
     }
     try {
-      const response = await fetch("http://localhost:8080/category/add", {
+      const response = await fetch(`${api}/category/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, imageUrl }),

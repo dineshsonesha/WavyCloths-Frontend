@@ -19,6 +19,7 @@ export default function Products() {
   const navigate = useNavigate();
   const { user } = useUser();
   const userId = user?.id;
+  const api = import.meta.env.VITE_API_URL;
 
   const [categories, setCategories] = useState([]);
   const [filters, setFilters] = useState({
@@ -35,7 +36,7 @@ export default function Products() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await fetch("http://localhost:8080/categories/all");
+        const res = await fetch(`${api}/categories/all`);
         const data = await res.json();
         setCategories(data.data || []);
       } catch (err) {

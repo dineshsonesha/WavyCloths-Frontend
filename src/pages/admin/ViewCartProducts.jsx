@@ -7,11 +7,12 @@ export default function ViewCartProducts() {
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const api = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await fetch(`http://localhost:8080/orders/${orderId}/cart-products`);
+        const res = await fetch(`${api}/orders/${orderId}/cart-products`);
         const data = await res.json();
         setProducts(data.data || []);
       } catch (error) {

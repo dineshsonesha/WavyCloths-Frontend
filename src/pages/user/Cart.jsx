@@ -9,6 +9,7 @@ export default function Cart() {
   const { userId } = useAuth();
   const { user } = useUser();
   const navigate = useNavigate();
+  const api = import.meta.env.VITE_API_URL;
 
   const {
     cart,
@@ -57,7 +58,7 @@ export default function Cart() {
   }
 
   try {
-    const res = await fetch("http://localhost:8080/api/payment/create-order", {
+    const res = await fetch(`${api}/api/payment/create-order`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ amount: totalAmount }),
@@ -73,7 +74,7 @@ export default function Cart() {
       order_id: order.id,
       handler: async function (response) {
         try {
-          const verifyRes = await fetch("http://localhost:8080/api/payment/verify", {
+          const verifyRes = await fetch(`${api}/api/payment/verify`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({

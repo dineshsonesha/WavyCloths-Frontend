@@ -8,10 +8,11 @@ export default function ManageCategories() {
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]); 
   const navigate = useNavigate();
+  const api = import.meta.env.VITE_API_URL;
 
   const fetchCategory = async () => {
     try {
-      const response = await fetch("http://localhost:8080/categories/all");
+      const response = await fetch(`${api}/categories/all`);
       const responseObject = await response.json();
       setCategories(responseObject.data || []);
     } catch (error) {
@@ -21,7 +22,7 @@ export default function ManageCategories() {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:8080/products/all");
+      const response = await fetch(`${api}/products/all`);
       const responseObject = await response.json();
       setProducts(responseObject.data || []);
     } catch (error) {
@@ -55,7 +56,7 @@ export default function ManageCategories() {
 
     if (result.isConfirmed) {
       const response = await fetch(
-        `http://localhost:8080/category/delete/${id}`,
+        `${api}/category/delete/${id}`,
         { method: "DELETE" }
       );
       const responseData = await response.json();

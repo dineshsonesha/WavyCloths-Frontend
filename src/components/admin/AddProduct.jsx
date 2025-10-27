@@ -12,11 +12,12 @@ export default function AddProduct() {
     reset,
     formState: { errors },
   } = useForm();
+  const api = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     async function fetchCategories() {
       try {
-        const response = await fetch("http://localhost:8080/categories/all");
+        const response = await fetch(`${api}/categories/all`);
         if (!response.ok) throw new Error("Failed to fetch categories");
         const responseObject = await response.json();
         setCategories(responseObject.data || []);
@@ -30,7 +31,7 @@ export default function AddProduct() {
   const collectFormData = async (formData) => {
     try {
       const res = await fetch(
-        `http://localhost:8080/product/category/${formData.categoryId}`,
+        `${api}/product/category/${formData.categoryId}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

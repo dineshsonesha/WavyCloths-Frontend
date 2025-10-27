@@ -9,15 +9,15 @@ import useWishlistAndCart from "../../Hook/useWishlistAndCart";
 export default function Home() {
   const { user } = useUser();
   const userId = user?.id;
-
   const [categories, setCategories] = useState([]);
   const [products, setProducts] = useState([]);
 
   const { wishlist, toggleWishlist, addToCart } = useWishlistAndCart(userId);
+  const api = import.meta.env.VITE_API_URL;
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch("http://localhost:8080/products/all",{method: 'GET',});
+      const response = await fetch(`${api}/products/all`,{method: 'GET',});
       const responseObject = await response.json();
       const inStockProducts = (responseObject.data || []).filter(
           (p) => p.status && p.status.toUpperCase() === "IN_STOCK"
@@ -30,7 +30,7 @@ export default function Home() {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch(`http://localhost:8080/categories/all`,{method: 'GET',});
+      const response = await fetch(`${api}/categories/all`,{method: 'GET',});
       const responseObject = await response.json();
       setCategories(responseObject.data);
     } catch (err) {
