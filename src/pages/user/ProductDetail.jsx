@@ -54,22 +54,24 @@ export default function ProductDetail() {
 
     try {
       // 2️⃣ Create order on backend
-      const amountInPaise = Math.round(product.price * 100); 
-      const res = await fetch(
-        `${api}/api/payment/create-order?amount=${amountInPaise}`,
-        { method: "POST" }
-      );
+      const amountInPaise = Math.round(product.price);
+      const res = await fetch(`${api}/api/payment/create-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: product.price }),
+      });
       const order = await res.json();
 
       // 3️⃣ Configure Razorpay options
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY, 
+        key: import.meta.env.VITE_RAZORPAY_KEY,
         amount: order.amount,
         currency: order.currency,
         name: "WavyCloths",
         description: product.name,
         order_id: order.id,
         handler: async function (response) {
+          // 4️⃣ Verify payment on backend
           const verifyRes = await fetch(`${api}/api/payment/verify`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -82,6 +84,7 @@ export default function ProductDetail() {
           });
 
           if (verifyRes.ok) {
+            // 5️⃣ Place order in backend for this product
             const placeOrderRes = await fetch(
               `${api}/api/orders/place?userId=${user?.id}&productId=${product.id}`,
               { method: "POST" }
