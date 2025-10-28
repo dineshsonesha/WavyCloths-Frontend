@@ -27,7 +27,7 @@ export default function UserNavbar({ onSearchProductsByTitle }) {
 
   const fetchCategories = async () => {
       try {
-        const response = await fetch("http://localhost:8080/categories/all");
+        const response = await fetch(`${api}/categories/all`);
         const responseObject = await response.json();
         setCategories(responseObject.data || []);
       } catch (err) {
