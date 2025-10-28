@@ -38,7 +38,6 @@ export default function ProductDetail() {
   }, [id]);
 
   const handleBuyNow = async (product) => {
-    // 1️⃣ Load Razorpay SDK
     const loadRazorpay = () =>
       new Promise((resolve) => {
         if (window.Razorpay) return resolve(true);
@@ -53,16 +52,22 @@ export default function ProductDetail() {
     if (!loaded) return alert("Razorpay SDK failed to load");
 
     try {
-      // 2️⃣ Create order on backend
-      const amountInPaise = Math.round(product.price);
+      const amountInPaise = Math.round(product.price * 100);
+
       const res = await fetch(`${api}/api/payment/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: amountInPaise }),
       });
-      const order = await res.json();
 
-      // 3️⃣ Configure Razorpay options
+      const order = await res.json();
+      console.log("Order created:", order);
+
+      if (!order.id) {
+        alert("Failed to create payment order");
+        return;
+      }
+
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY,
         amount: order.amount,
@@ -71,6 +76,9 @@ export default function ProductDetail() {
         description: product.name,
         order_id: order.id,
         handler: async function (response) {
+          console.log("Payment Response:", response);
+          console.log("User ID:", user?.id);
+
           const verifyRes = await fetch(`${api}/api/payment/verify`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -82,9 +90,7 @@ export default function ProductDetail() {
             }),
           });
 
-
           if (verifyRes.ok) {
-            // 5️⃣ Place order in backend for this product
             const placeOrderRes = await fetch(
               `${api}/api/orders/place?userId=${user?.id}&productId=${product.id}`,
               { method: "POST" }
@@ -108,7 +114,6 @@ export default function ProductDetail() {
         theme: { color: "#F5C518" },
       };
 
-      // 6️⃣ Open Razorpay popup
       const rzp = new window.Razorpay(options);
       rzp.open();
 
@@ -120,6 +125,7 @@ export default function ProductDetail() {
       alert("Something went wrong while initializing payment.");
     }
   };
+
 
   if (!product)
     return (
