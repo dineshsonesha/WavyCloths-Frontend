@@ -54,7 +54,7 @@ export default function ProductDetail() {
 
     try {
       // 2️⃣ Create order on backend
-      const amountInPaise = Math.round(product.price * 100); // convert ₹ to paise
+      const amountInPaise = Math.round(product.price * 100); 
       const res = await fetch(
         `${api}/api/payment/create-order?amount=${amountInPaise}`,
         { method: "POST" }
@@ -63,7 +63,7 @@ export default function ProductDetail() {
 
       // 3️⃣ Configure Razorpay options
       const options = {
-        key: import.meta.env.Razapay_API, 
+        key: import.meta.env.VITE_RAZORPAY_KEY, 
         amount: order.amount,
         currency: order.currency,
         name: "My E-commerce Store",
