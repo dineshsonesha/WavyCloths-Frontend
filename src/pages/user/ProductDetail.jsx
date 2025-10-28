@@ -66,11 +66,10 @@ export default function ProductDetail() {
         key: import.meta.env.VITE_RAZORPAY_KEY, 
         amount: order.amount,
         currency: order.currency,
-        name: "My E-commerce Store",
+        name: "WavyCloths",
         description: product.name,
         order_id: order.id,
         handler: async function (response) {
-          // 4️⃣ Verify payment on backend
           const verifyRes = await fetch(`${api}/api/payment/verify`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -83,7 +82,6 @@ export default function ProductDetail() {
           });
 
           if (verifyRes.ok) {
-            // 5️⃣ Place order in backend for this product
             const placeOrderRes = await fetch(
               `${api}/api/orders/place?userId=${user?.id}&productId=${product.id}`,
               { method: "POST" }
