@@ -53,17 +53,16 @@ export default function ProductDetail() {
     if (!loaded) return alert("Razorpay SDK failed to load");
 
     try {
-      // 2️⃣ Create order on backend
-      const amountInPaise = Math.round(product.price * 100); 
-      const res = await fetch(
-        `${api}/api/payment/create-order?amount=${amountInPaise}`,
-        { method: "POST" }
-      );
+      const amountInPaise = Math.round(product.price * 100);
+      const res = await fetch(`${api}/api/payment/create-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: amountInPaise }),
+      });
       const order = await res.json();
 
-      // 3️⃣ Configure Razorpay options
       const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY, 
+        key: import.meta.env.VITE_RAZORPAY_KEY,
         amount: order.amount,
         currency: order.currency,
         name: "WavyCloths",

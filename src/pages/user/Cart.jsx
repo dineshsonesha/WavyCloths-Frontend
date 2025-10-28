@@ -87,9 +87,7 @@ export default function Cart() {
 
           if (verifyRes.ok) {
             alert("✅ Payment successful and order placed!");
-            
-            // 🔹 Refresh cart in frontend after order
-            await fetchCart(); // <- This will update your cart to empty
+            await fetchCart(); 
             navigate("/my-orders");
           } else {
             const err = await verifyRes.json();
