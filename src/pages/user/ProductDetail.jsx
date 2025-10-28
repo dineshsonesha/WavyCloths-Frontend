@@ -15,6 +15,7 @@ export default function ProductDetail() {
   const [relatedProducts, setRelatedProducts] = useState([]);
   const api = import.meta.env.VITE_API_URL;
 
+  // 🧠 Fetch product + related
   useEffect(() => {
     const fetchProduct = async () => {
       try {
@@ -23,22 +24,24 @@ export default function ProductDetail() {
         if (data.data) {
           setProduct(data.data);
           if (data.data.category?.id) {
-            const response = await fetch(`${api}/products/category/${data.data.category.id}`);
-            const responseData = await response.json();
+            const res2 = await fetch(`${api}/products/category/${data.data.category.id}`);
+            const catData = await res2.json();
             setRelatedProducts(
-              (responseData.data).filter((p) => p.id !== data.data.id).filter((p) => p.status && p.status.toUpperCase() === "IN_STOCK")
+              (catData.data || [])
+                .filter((p) => p.id !== data.data.id)
+                .filter((p) => p.status?.toUpperCase() === "IN_STOCK")
             );
           }
         }
       } catch (err) {
-        console.error("Error fetching product:", err);
+        console.error("❌ Error fetching product:", err);
       }
     };
     fetchProduct();
   }, [id]);
 
+  // 💳 Razorpay flow
   const handleBuyNow = async (product) => {
-    // 1️⃣ Load Razorpay SDK
     const loadRazorpay = () =>
       new Promise((resolve) => {
         if (window.Razorpay) return resolve(true);
@@ -50,16 +53,24 @@ export default function ProductDetail() {
       });
 
     const loaded = await loadRazorpay();
-    if (!loaded) return alert("Razorpay SDK failed to load");
+    if (!loaded) return alert("Razorpay SDK failed to load. Try again.");
 
     try {
-      const amountInPaise = Math.round(Number(product.price)); 
+      // ✅ Razorpay expects amount in paise (INR × 100)
+      const amountInPaise = Math.round(Number(product.price) * 100);
+
+      // 🔹 Create order on backend
       const res = await fetch(`${api}/api/payment/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ amount: amountInPaise }),
       });
       const order = await res.json();
+
+      if (!order.id) {
+        console.error("Order creation failed:", order);
+        return alert("Failed to create order.");
+      }
 
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY,
@@ -69,6 +80,8 @@ export default function ProductDetail() {
         description: product.name,
         order_id: order.id,
         handler: async function (response) {
+          console.log("✅ Payment Success:", response);
+
           const verifyRes = await fetch(`${api}/api/payment/verify`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -76,13 +89,13 @@ export default function ProductDetail() {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              userId: user?.id,
+              userId: userId,
             }),
           });
 
           if (verifyRes.ok) {
             const placeOrderRes = await fetch(
-              `${api}/api/orders/place?userId=${user?.id}&productId=${product.id}`,
+              `${api}/api/orders/place?userId=${userId}&productId=${product.id}`,
               { method: "POST" }
             );
 
@@ -104,7 +117,6 @@ export default function ProductDetail() {
         theme: { color: "#F5C518" },
       };
 
-      // 6️⃣ Open Razorpay popup
       const rzp = new window.Razorpay(options);
       rzp.open();
 
@@ -112,7 +124,7 @@ export default function ProductDetail() {
         alert("Payment Failed ❌\nReason: " + response.error.description);
       });
     } catch (err) {
-      console.error("Payment Error:", err);
+      console.error("💳 Payment Error:", err);
       alert("Something went wrong while initializing payment.");
     }
   };
@@ -124,49 +136,54 @@ export default function ProductDetail() {
 
   return (
     <div className="container mx-auto px-6 py-12">
-      {/* Product Details */}
+      {/* Product Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
-        {/* Image */}
+        {/* 🖼 Product Image */}
         <div className="relative rounded-xl overflow-hidden shadow-lg hover:shadow-2xl transition-shadow duration-300">
           <img
             src={product.imageUrl}
             alt={product.name}
             className="w-full h-[28rem] object-cover transition-transform duration-500 hover:scale-105"
           />
-          {/* Wishlist button */}
+
+          {/* ❤️ Wishlist */}
           <div className="absolute top-4 right-4">
             <IconButton
-              className="bg-white shadow-md hover:bg-gray-100"
+              sx={{ bgcolor: "white", "&:hover": { bgcolor: "#f3f4f6" } }}
               onClick={() => toggleWishlist(product.id)}
             >
               <Favorite
-                className={
-                  wishlist.includes(product.id)
-                    ? "text-red-500"
-                    : "text-gray-400"
-                }
+                sx={{
+                  color: wishlist.includes(product.id)
+                    ? "red"
+                    : "gray",
+                  width: 26,
+                  height: 26,
+                }}
               />
             </IconButton>
           </div>
         </div>
 
-        {/* Info */}
+        {/* ℹ Product Info */}
         <div className="flex flex-col justify-between">
           <div>
             <h1 className="text-4xl font-bold mb-4">{product.name}</h1>
             <p className="text-gray-600 mb-4">{product.description}</p>
+
             <ul className="list-disc list-inside mb-6 space-y-1">
               <li>Color: {product.color}</li>
               <li>Size: {product.size}</li>
               <li>Gender: {product.gender}</li>
               <li>Category: {product.category?.name}</li>
             </ul>
+
             <p className="text-3xl font-extrabold text-gray-900 mb-4">
               ₹{product.price}
             </p>
           </div>
 
-          {/* Actions */}
+          {/* 🛒 Action Buttons */}
           <div className="flex gap-4 mt-6">
             <Button
               variant="contained"
@@ -182,11 +199,10 @@ export default function ProductDetail() {
               color="primary"
               size="large"
               className="flex-1 py-3"
-              onClick={() => handleBuyNow(product)} // pass entire product
+              onClick={() => handleBuyNow(product)}
             >
               Buy Now
             </Button>
-
           </div>
         </div>
       </div>
