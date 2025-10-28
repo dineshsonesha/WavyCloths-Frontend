@@ -58,7 +58,7 @@ export default function ProductDetail() {
       const res = await fetch(`${api}/api/payment/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: product.price }),
+        body: JSON.stringify({ amount: amountInPaise }),
       });
       const order = await res.json();
 
@@ -71,7 +71,6 @@ export default function ProductDetail() {
         description: product.name,
         order_id: order.id,
         handler: async function (response) {
-          // 4️⃣ Verify payment on backend
           const verifyRes = await fetch(`${api}/api/payment/verify`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -82,6 +81,7 @@ export default function ProductDetail() {
               userId: user?.id,
             }),
           });
+
 
           if (verifyRes.ok) {
             // 5️⃣ Place order in backend for this product
