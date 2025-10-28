@@ -53,7 +53,7 @@ export default function ProductDetail() {
     if (!loaded) return alert("Razorpay SDK failed to load");
 
     try {
-      const amountInPaise = Math.round(product.price * 100);
+      const amountInPaise = Math.round(product.price);
       const res = await fetch(`${api}/api/payment/create-order`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
