@@ -86,7 +86,6 @@ export default function ProductDetail() {
 
             if (verifyRes.ok) {
               alert("✅ Payment successful and order placed!");
-              await fetchCart();
               navigate("/my-orders");
             } else {
               const err = await verifyRes.json();
@@ -115,7 +114,6 @@ export default function ProductDetail() {
       alert("❌ Something went wrong while initializing payment");
     }
   };
-
 
   if (!product)
     return (
