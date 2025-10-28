@@ -66,10 +66,10 @@ export default function Cart() {
     const order = await res.json();
 
     const options = {
-      key: "rzp_test_RTHUaWxS96gPE2",
+      key: import.meta.env.Razapay_API,
       amount: order.amount,
       currency: order.currency,
-      name: "GrocyMart",
+      name: "WavyCloths",
       description: "Order Payment",
       order_id: order.id,
       handler: async function (response) {
