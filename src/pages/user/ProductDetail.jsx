@@ -37,48 +37,41 @@ export default function ProductDetail() {
     fetchProduct();
   }, [id]);
 
-  const handleBuyNow = async (product) => {
-    const loadRazorpay = () =>
-      new Promise((resolve) => {
-        if (window.Razorpay) return resolve(true);
-        const script = document.createElement("script");
-        script.src = "https://checkout.razorpay.com/v1/checkout.js";
-        script.onload = () => resolve(true);
-        script.onerror = () => resolve(false);
-        document.body.appendChild(script);
-      });
+  const handleBuyNow = async () => {
+  // Load Razorpay script
+  const loadRazorpayScript = () =>
+    new Promise((resolve) => {
+      if (window.Razorpay) return resolve(true);
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
 
-    const loaded = await loadRazorpay();
-    if (!loaded) return alert("Razorpay SDK failed to load");
+  const loaded = await loadRazorpayScript();
+  if (!loaded) {
+    alert("❌ Razorpay SDK failed to load");
+    return;
+  }
 
-    try {
-      const amountInPaise = Math.round(product.price * 100);
+  try {
+    const res = await fetch(`${api}/api/payment/create-order`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ amount: product.id }),
+    });
+    const order = await res.json();
 
-      const res = await fetch(`${api}/api/payment/create-order`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ amount: amountInPaise }),
-      });
-
-      const order = await res.json();
-      console.log("Order created:", order);
-
-      if (!order.id) {
-        alert("Failed to create payment order");
-        return;
-      }
-
-      const options = {
-        key: import.meta.env.VITE_RAZORPAY_KEY,
-        amount: order.amount,
-        currency: order.currency,
-        name: "WavyCloths",
-        description: product.name,
-        order_id: order.id,
-        handler: async function (response) {
-          console.log("Payment Response:", response);
-          console.log("User ID:", user?.id);
-
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY,
+      amount: order.amount,
+      currency: order.currency,
+      name: "WavyCloths",
+      description: "Order Payment",
+      order_id: order.id,
+      handler: async function (response) {
+        try {
           const verifyRes = await fetch(`${api}/api/payment/verify`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
@@ -86,45 +79,41 @@ export default function ProductDetail() {
               razorpay_order_id: response.razorpay_order_id,
               razorpay_payment_id: response.razorpay_payment_id,
               razorpay_signature: response.razorpay_signature,
-              userId: user?.id,
+              userId: userId,
             }),
           });
 
           if (verifyRes.ok) {
-            const placeOrderRes = await fetch(
-              `${api}/api/orders/place?userId=${user?.id}&productId=${product.id}`,
-              { method: "POST" }
-            );
-
-            if (placeOrderRes.ok) {
-              alert("✅ Payment successful and order placed!");
-              window.location.href = "/my-orders";
-            } else {
-              alert("⚠ Payment succeeded but order placement failed!");
-            }
+            alert("✅ Payment successful and order placed!");
+            await fetchCart(); 
+            navigate("/my-orders");
           } else {
-            alert("⚠ Payment verification failed!");
+            const err = await verifyRes.json();
+            alert("⚠ Payment verification failed: " + (err?.error || JSON.stringify(err)));
           }
-        },
-        prefill: {
-          name: user?.fullName || "Customer",
-          email: user?.primaryEmailAddress?.emailAddress || "customer@example.com",
-          contact: "9999999999",
-        },
-        theme: { color: "#F5C518" },
-      };
+        } catch (err) {
+          console.error(err);
+          alert("⚠ Something went wrong during verification");
+        }
+      },
+      prefill: {
+        name: user?.fullName || "Customer",
+        email: user?.primaryEmailAddress?.emailAddress || "customer@example.com",
+        contact: "9999999999",
+      },
+      theme: { color: "#3399cc" },
+    };
 
-      const rzp = new window.Razorpay(options);
-      rzp.open();
-
-      rzp.on("payment.failed", function (response) {
-        alert("Payment Failed ❌\nReason: " + response.error.description);
-      });
-    } catch (err) {
-      console.error("Payment Error:", err);
-      alert("Something went wrong while initializing payment.");
-    }
-  };
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+    rzp.on("payment.failed", (response) => {
+      alert("❌ Payment Failed\nReason: " + response.error.description);
+    });
+  } catch (error) {
+    console.error(error);
+    alert("❌ Something went wrong while initializing payment");
+  }
+};
 
 
   if (!product)
