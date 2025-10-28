@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { Favorite } from "@mui/icons-material";
 import { IconButton, Button } from "@mui/material";
 import { useUser } from "@clerk/clerk-react";
@@ -13,6 +13,7 @@ export default function ProductDetail() {
   const { wishlist, toggleWishlist, addToCart } = useWishlistAndCart(userId);
   const [product, setProduct] = useState(null);
   const [relatedProducts, setRelatedProducts] = useState([]);
+  const navigate = useNavigate();
   const api = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
