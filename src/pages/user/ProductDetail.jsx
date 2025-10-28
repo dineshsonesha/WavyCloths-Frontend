@@ -38,82 +38,83 @@ export default function ProductDetail() {
   }, [id]);
 
   const handleBuyNow = async () => {
-  // Load Razorpay script
-  const loadRazorpayScript = () =>
-    new Promise((resolve) => {
-      if (window.Razorpay) return resolve(true);
-      const script = document.createElement("script");
-      script.src = "https://checkout.razorpay.com/v1/checkout.js";
-      script.onload = () => resolve(true);
-      script.onerror = () => resolve(false);
-      document.body.appendChild(script);
-    });
+    // Load Razorpay script
+    const loadRazorpayScript = () =>
+      new Promise((resolve) => {
+        if (window.Razorpay) return resolve(true);
+        const script = document.createElement("script");
+        script.src = "https://checkout.razorpay.com/v1/checkout.js";
+        script.onload = () => resolve(true);
+        script.onerror = () => resolve(false);
+        document.body.appendChild(script);
+      });
 
-  const loaded = await loadRazorpayScript();
-  if (!loaded) {
-    alert("❌ Razorpay SDK failed to load");
-    return;
-  }
+    const loaded = await loadRazorpayScript();
+    if (!loaded) {
+      alert("❌ Razorpay SDK failed to load");
+      return;
+    }
 
-  try {
-    const res = await fetch(`${api}/api/payment/create-order`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ amount: product.id }),
-    });
-    const order = await res.json();
+    try {
+      const res = await fetch(`${api}/api/payment/create-order`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: product.price }),
+      });
+      const order = await res.json();
 
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY,
-      amount: order.amount,
-      currency: order.currency,
-      name: "WavyCloths",
-      description: "Order Payment",
-      order_id: order.id,
-      handler: async function (response) {
-        try {
-          const verifyRes = await fetch(`${api}/api/payment/verify`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              razorpay_order_id: response.razorpay_order_id,
-              razorpay_payment_id: response.razorpay_payment_id,
-              razorpay_signature: response.razorpay_signature,
-              userId: userId,
-            }),
-          });
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY,
+        amount: order.amount,
+        currency: order.currency,
+        name: "WavyCloths",
+        description: "Order Payment",
+        order_id: order.id,
+        handler: async function (response) {
+          try {
+            const verifyRes = await fetch(`${api}/api/payment/verify`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                userId: userId,
+                productId: product.id,
+              }),
+            });
 
-          if (verifyRes.ok) {
-            alert("✅ Payment successful and order placed!");
-            await fetchCart(); 
-            navigate("/my-orders");
-          } else {
-            const err = await verifyRes.json();
-            alert("⚠ Payment verification failed: " + (err?.error || JSON.stringify(err)));
+            if (verifyRes.ok) {
+              alert("✅ Payment successful and order placed!");
+              await fetchCart();
+              navigate("/my-orders");
+            } else {
+              const err = await verifyRes.json();
+              alert("⚠ Payment verification failed: " + (err?.error || JSON.stringify(err)));
+            }
+          } catch (err) {
+            console.error(err);
+            alert("⚠ Something went wrong during verification");
           }
-        } catch (err) {
-          console.error(err);
-          alert("⚠ Something went wrong during verification");
-        }
-      },
-      prefill: {
-        name: user?.fullName || "Customer",
-        email: user?.primaryEmailAddress?.emailAddress || "customer@example.com",
-        contact: "9999999999",
-      },
-      theme: { color: "#3399cc" },
-    };
+        },
+        prefill: {
+          name: user?.fullName || "Customer",
+          email: user?.primaryEmailAddress?.emailAddress || "customer@example.com",
+          contact: "9999999999",
+        },
+        theme: { color: "#3399cc" },
+      };
 
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-    rzp.on("payment.failed", (response) => {
-      alert("❌ Payment Failed\nReason: " + response.error.description);
-    });
-  } catch (error) {
-    console.error(error);
-    alert("❌ Something went wrong while initializing payment");
-  }
-};
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+      rzp.on("payment.failed", (response) => {
+        alert("❌ Payment Failed\nReason: " + response.error.description);
+      });
+    } catch (error) {
+      console.error(error);
+      alert("❌ Something went wrong while initializing payment");
+    }
+  };
 
 
   if (!product)
