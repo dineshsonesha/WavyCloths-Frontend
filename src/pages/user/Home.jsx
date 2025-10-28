@@ -50,8 +50,8 @@ export default function Home() {
       {/* Categories Section */}
       <section className="py-12 px-6">
         <h2 className="text-2xl font-bold mb-6">Shop by Category</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-6">
-          {categories.slice(0, 7).map((cat) => (
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-6">
+          {categories.slice(0, 8).map((cat) => (
             <Link
               key={cat.id || cat._id} 
               to={`/products/${cat.id || cat._id}`}

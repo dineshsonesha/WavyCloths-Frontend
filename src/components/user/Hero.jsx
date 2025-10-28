@@ -35,7 +35,7 @@ export default function Hero() {
 
           {/* CTA */}
           <div className="mt-10">
-            <button className="group inline-flex items-center gap-2 rounded-lg border border-white/30 bg-black/60 px-6 py-2.5 text-sm font-medium text-white shadow-sm backdrop-blur-md transition hover:bg-white/10 hover:border-white/50">
+            <button className="group inline-flex items-center gap-2 rounded-lg border border-white/30 bg-black/60 px-6 py-2.5 text-sm font-medium text-white shadow-sm backdrop-blur-md transition cursor-pointer hover:bg-white/10 hover:border-white/50">
               <span onClick={() => navigate("/products/all")}>
                 Explore Collection
               </span>

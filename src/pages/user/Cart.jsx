@@ -121,65 +121,76 @@ export default function Cart() {
   if (loading) return <p className="text-center py-10">Loading cart...</p>;
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-6">
-      <div className="md:col-span-2 space-y-4">
-        {inStockCart.length === 0 ? (
-          <p className="text-center text-gray-500">Your cart is empty.</p>
-        ) : (
-          inStockCart.map((item) => (
-            <div
-              key={item.product.id}
-              className="flex items-center justify-between p-4 bg-white shadow-md border border-gray-200 rounded-lg"
-            >
-              <div className="flex items-center gap-4 flex-1">
-                <img
-                  src={item.product.imageUrl}
-                  alt={item.product.name}
-                  className="w-20 h-20 object-cover rounded"
-                />
-                <div>
-                  <h4 className="font-semibold">{item.product.name}</h4>
-                  <p className="text-gray-500 text-sm">₹{item.product.price}</p>
-                </div>
-              </div>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 p-4 md:p-6">
+  {/* Cart Items Section */}
+  <div className="md:col-span-2 space-y-4">
+    {inStockCart.length === 0 ? (
+      <p className="text-center text-gray-500">Your cart is empty.</p>
+    ) : (
+      inStockCart.map((item) => (
+        <div
+  key={item.product.id}
+  className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 bg-white shadow-md border border-gray-200 rounded-xl"
+>
+  {/* Product Image and Info */}
+  <div className="flex items-center gap-4 w-full sm:w-auto flex-1">
+    <img
+      src={item.product.imageUrl}
+      alt={item.product.name}
+      className="w-20 h-20 object-cover rounded-md sm:w-24 sm:h-24"
+    />
+    <div className="flex flex-col justify-center text-sm sm:text-base">
+      <h4 className="font-semibold leading-tight">{item.product.name}</h4>
+      {/* New line: size | color | gender */}
+      <p className="text-gray-600 text-xs sm:text-sm mt-1">
+        <span className="font-medium">Size:</span> {item.product.size || "Free"}{" "}
+        | <span className="font-medium">Color:</span> {item.product.color || "N/A"}{" "}
+        | <span className="font-medium">Gender:</span> {item.product.gender || "Unisex"}
+      </p>
+      <p className="text-gray-500 mt-1">₹{item.product.price}</p>
+    </div>
+  </div>
 
-              <div className="flex items-center gap-4 ml-4">
-                <div className="flex items-center gap-1">
-                  <IconButton
-                    size="small"
-                    onClick={() =>
-                      updateCartQuantity(item.product.id, item.quantity - 1)
-                    }
-                    disabled={item.quantity <= 1}
-                  >
-                    <Remove />
-                  </IconButton>
-                  <span className="px-1 font-medium">{item.quantity}</span>
-                  <IconButton
-                    size="small"
-                    onClick={() =>
-                      updateCartQuantity(item.product.id, item.quantity + 1)
-                    }
-                  >
-                    <Add />
-                  </IconButton>
-                </div>
+  {/* Quantity, Total, and Delete */}
+  <div className="flex items-center justify-between sm:justify-end w-full sm:w-auto gap-3 sm:gap-6">
+    <div className="flex items-center gap-1 rounded-lg px-2 py-1">
+      <IconButton
+        size="small"
+        onClick={() =>
+          updateCartQuantity(item.product.id, item.quantity - 1)
+        }
+        disabled={item.quantity <= 1}
+      >
+        <Remove fontSize="small" />
+      </IconButton>
+      <span className="font-medium text-sm">{item.quantity}</span>
+      <IconButton
+        size="small"
+        onClick={() =>
+          updateCartQuantity(item.product.id, item.quantity + 1)
+        }
+      >
+        <Add fontSize="small" />
+      </IconButton>
+    </div>
 
-                <p className="font-bold w-24 text-right">
-                  ₹{item.product.price * item.quantity}
-                </p>
+    <p className="font-bold text-sm sm:text-base min-w-[60px] text-right">
+      ₹{item.product.price * item.quantity}
+    </p>
 
-                <IconButton
-                  color="error"
-                  onClick={() => removeFromCart(item.product.id)}
-                >
-                  <Delete />
-                </IconButton>
-              </div>
-            </div>
-          ))
-        )}
-      </div>
+    <IconButton
+      color="error"
+      size="small"
+      onClick={() => removeFromCart(item.product.id)}
+    >
+      <Delete fontSize="small" />
+    </IconButton>
+  </div>
+</div>
+
+      ))
+    )}
+  </div>
 
       <div className="bg-white shadow-lg p-6 border border-gray-200 rounded-lg flex flex-col justify-between h-full">
         <div>
