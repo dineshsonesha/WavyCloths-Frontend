@@ -63,7 +63,7 @@ export default function ProductDetail() {
 
       // 3️⃣ Configure Razorpay options
       const options = {
-        key: "rzp_test_RTHUaWxS96gPE2", // Your Razorpay Test Key ID
+        key: import.meta.env.Razapay_API, 
         amount: order.amount,
         currency: order.currency,
         name: "My E-commerce Store",

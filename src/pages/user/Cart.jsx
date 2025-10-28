@@ -66,7 +66,7 @@ export default function Cart() {
     const order = await res.json();
 
     const options = {
-      key: import.meta.env.Razapay_API,
+      key: import.meta.env.VITE_RAZORPAY_KEY,
       amount: order.amount,
       currency: order.currency,
       name: "WavyCloths",
