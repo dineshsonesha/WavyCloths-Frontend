@@ -178,7 +178,6 @@ export default function useWishlistAndCart(userId) {
     wishlist,
     cart,
     loading,
-    fetchCart,
     toggleWishlist,
     removeWishlist,
     fetchCart,
