@@ -130,7 +130,7 @@ export default function AddProduct() {
             htmlFor="price"
             className="block mb-2 text-sm font-medium text-gray-700 dark:text-gray-300"
           >
-            Price ($) <span className="text-red-500">*</span>
+            Price (₹) <span className="text-red-500">*</span>
           </label>
           <input
             id="price"
